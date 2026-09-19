@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import Tk, Label, Button, Entry, ttk
+import requests
+from datetime import datetime
 
 class AppCotacao:
     def __init__(self):
@@ -98,12 +100,34 @@ class AppCotacao:
     def buscar_cotacao(self):
         
         moeda = self.entrada_moeda.get()
-        print(f"Moeda pesquisada: {moeda}")
+        
+        uri = f"https://api.frankfurter.dev/v2/rate/brl/{moeda[0:3]}"
+
+        response = requests.get(uri)
+
+        if response.status_code == 200:
+            data = response.json()
+            resultado = data["rate"]
+
+        else:
+            resultado = f"Erro na requisição: {response.status_code}"
+            
+        exibe_resultado = tk.Label(
+        self.janela,
+        text=f'''
+        Data: {datetime.now().strftime("%d/%m/%Y")}
+        Hora: {datetime.now().strftime("%H:%M:%S")}
+        Moeda: {moeda}
+        Cotação: {resultado}''',
+        bg="#66b2b2",
+        fg="white",
+        font=("Arial", 16, "bold")
+        )
+        exibe_resultado.grid(row=3, column=0, pady=20, columnspan=2, sticky="ew", padx=10)
+    
 
     def executar(self):
         self.janela.mainloop()
-
-
 
 
 if __name__ == "__main__":
