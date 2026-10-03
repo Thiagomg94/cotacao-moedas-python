@@ -8,7 +8,7 @@ from openpyxl import Workbook
 class AppCotacao:
     def __init__(self):
         self.janela = tk.Tk()
-        self.janela.configure(bg="#66b2b2")
+        self.janela.configure(bg="#265051")
         self.janela.geometry("1000x850")
 
         self.janela.columnconfigure(0, weight=1)
@@ -34,31 +34,88 @@ class AppCotacao:
         
 
     def montar_tela_inicial(self):
-        imagem = tk.PhotoImage(file="./img/fundo_2.png")
+        """
+        Monta a tela de boas-vindas (primeira tela exibida ao abrir o app).
+        """
 
-        self.imagem = imagem  # Armazena a imagem como um atributo da classe para evitar coleta de lixo
+        # --- Paleta de cores desta tela ---
+        # O dourado remete a moeda/valor (tema do app) e aparece só no
+        # filete decorativo e no botão "Entrar" — único ponto de destaque
+        # da tela, o resto fica discreto em tons de teal escuro/branco.
+        COR_FUNDO = "#0F3D3E"  # teal escuro — agora é o fundo da janela inteira
+        COR_DESTAQUE = "#D9A441"  # dourado — cor do filete e do botão
+        COR_DESTAQUE_HOVER = "#C78F2E"  # dourado mais escuro — efeito hover
+        COR_TEXTO_PRINCIPAL = "#FFFFFF"
+        COR_TEXTO_SECUNDARIO = "#BFD9D8"
 
-        fundo = tk.Label(self.janela, image=imagem)
+        # ALTERADO: em vez de carregar uma imagem com tk.PhotoImage, um Frame
+        # preenche a janela inteira com a cor do antigo painel. Usamos um
+        # Frame (e não self.janela.configure(bg=...)) para que essa cor valha
+        # só para esta tela — a tela principal (abrir_programa) continua
+        # usando sua própria paleta sem ser afetada por essa troca.
+        fundo = tk.Frame(self.janela, bg=COR_FUNDO)
         fundo.place(x=0, y=0, relwidth=1, relheight=1)
 
-        titulo = tk.Label(
-        self.janela,
-        text="Bem-vindo ao\n Sistema de Cotação de Moedas",
-        bg="#66b2b2",
-        fg="white",
-        font=("Arial", 20, "bold")
+        # Frame que agrupa o conteúdo e fica centralizado na janela
+        conteudo = tk.Frame(fundo, bg=COR_FUNDO)
+        conteudo.place(relx=0.5, rely=0.5, anchor="center")
+
+        # NOVO: filete dourado curto, centralizado, como detalhe decorativo
+        # acima da saudação — sem uma "borda de cartão" para encostar, um
+        # filete largo ficaria estranho, por isso ele é estreito e centrado
+        filete = tk.Frame(conteudo, bg=COR_DESTAQUE, width=70, height=3)
+        filete.pack(anchor="center", pady=(0, 18))
+        filete.pack_propagate(False)
+
+        saudacao = tk.Label(
+            conteudo,
+            text="Bem-vindo(a)",
+            bg=COR_FUNDO,
+            fg=COR_TEXTO_SECUNDARIO,
+            font=("Segoe UI", 12)
         )
-        titulo.place(relx=0.5, rely=0.2, anchor="center")
+        saudacao.pack(anchor="center")
+
+        titulo = tk.Label(
+            conteudo,
+            text="Cotação de Moedas",
+            bg=COR_FUNDO,
+            fg=COR_TEXTO_PRINCIPAL,
+            font=("Segoe UI", 30, "bold")
+        )
+        titulo.pack(anchor="center", pady=(4, 10))
+
+        subtitulo = tk.Label(
+            conteudo,
+            text="Consulte cotações atualizadas de\nmoedas estrangeiras",
+            bg=COR_FUNDO,
+            fg=COR_TEXTO_SECUNDARIO,
+            font=("Segoe UI", 11),
+            justify="center"
+        )
+        subtitulo.pack(anchor="center", pady=(0, 30))
 
         botao = tk.Button(
-            self.janela,
+            conteudo,
             text="Entrar",
-            bg="black",
-            fg="white",
-            font=("Arial", 20, "bold"),
+            bg=COR_DESTAQUE,
+            fg="#1A1A1A",
+            activebackground=COR_DESTAQUE_HOVER,
+            activeforeground="#1A1A1A",
+            font=("Segoe UI", 13, "bold"),
+            relief="flat",
+            bd=0,
+            padx=36,
+            pady=10,
+            cursor="hand2",  # NOVO: cursor de "mãozinha" ao passar o mouse, indicando que é clicável
             command=self.abrir_programa
         )
-        botao.place(relx=0.5, rely=0.9, anchor="center")
+        botao.pack(anchor="center")
+
+        # NOVO: efeito de hover — escurece o botão quando o mouse passa por cima
+        # e volta à cor original quando o mouse sai
+        botao.bind("<Enter>", lambda e: botao.configure(bg=COR_DESTAQUE_HOVER))
+        botao.bind("<Leave>", lambda e: botao.configure(bg=COR_DESTAQUE))
 
     # ----------------
     # JANELA PRINCIPAL
@@ -74,7 +131,7 @@ class AppCotacao:
         mensagem = tk.Label(
         self.janela, 
         text="Sistema de busca para cotação de moedas",
-        bg="#008080",
+        bg="#0F3D3E",
         fg="white",
         font=("Arial", 20, "bold")
         )
@@ -83,7 +140,7 @@ class AppCotacao:
         mensagem_entrada = tk.Label(
         self.janela,
         text="Digite a moeda que deseja consultar:",
-        bg="#66b2b2",
+        bg="#265051",
         fg="white",
         font=("Arial", 14, "bold")
         )
@@ -112,7 +169,7 @@ class AppCotacao:
 
     def montar_area_historico(self):
 
-        container_historico = tk.Frame(self.janela, bg="#66b2b2")
+        container_historico = tk.Frame(self.janela, bg="#265051")
         container_historico.grid(row=4,
                                 column=0,
                                 columnspan=2,
@@ -121,7 +178,7 @@ class AppCotacao:
                                 sticky="nsew")
 
         # Botões (posicionados primeiro)
-        frame_botoes = tk.Frame(container_historico, bg="#66b2b2")
+        frame_botoes = tk.Frame(container_historico, bg="#265051")
         frame_botoes.pack(side="bottom", fill="x", pady=(10, 0))
 
         botao_exportar_excel = tk.Button(
